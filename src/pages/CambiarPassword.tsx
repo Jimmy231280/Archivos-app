@@ -5,15 +5,17 @@ import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 
 export default function CambiarPassword() {
-  const { session, debeCambiarPassword, motivoCambio, marcarPasswordActualizada } = useAuth();
+  const { session, debeCambiarPassword, recuperandoPassword, motivoCambio, marcarPasswordActualizada } = useAuth();
   const [p1, setP1] = useState("");
   const [p2, setP2] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   if (!session) return <Navigate to="/login" replace />;
-  if (!debeCambiarPassword) return <Navigate to="/inicio" replace />;
-
+ 
+  if (!debeCambiarPassword && !recuperandoPassword) {
+    return <Navigate to="/inicio" replace />;
+  }
   const valido = p1.length >= 6 && p1 === p2;
 
   const handleSubmit = async (e: React.FormEvent) => {

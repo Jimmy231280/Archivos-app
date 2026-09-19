@@ -1,3 +1,4 @@
+alter table public.archivos enable row level security;
 -- ============================================================================
 -- UAI · Inventario y Préstamo de Documentos
 -- Script único de base de datos. Copia y pega TODO este archivo en:
@@ -245,7 +246,6 @@ alter table public.auditorias enable row level security;
 alter table public.documentos enable row level security;
 alter table public.prestamos enable row level security;
 alter table public.devoluciones enable row level security;
-alter table public.archivos enable row level security;
 alter table public.solicitudes enable row level security;
 
 -- profiles: cada quien ve su propio perfil; el admin ve y edita todos.

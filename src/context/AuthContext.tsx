@@ -9,6 +9,7 @@ interface AuthContextValue {
   profile: Profile | null;
   loading: boolean;
   debeCambiarPassword: boolean;
+  recuperandoPassword: boolean;
   motivoCambio: "primer_ingreso" | "vencida" | null;
   signInWithUsuario: (usuario: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -22,6 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [recuperandoPassword, setRecuperandoPassword] = useState(false);
 
   const loadProfile = async (userId: string) => {
     const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
@@ -35,8 +37,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       setSession(newSession);
+      if (event === "PASSWORD_RECOVERY") {
+       setRecuperandoPassword(true);
+      }
       if (newSession?.user) await loadProfile(newSession.user.id);
       else setProfile(null);
     });
@@ -99,6 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         loading,
         debeCambiarPassword,
+        recuperandoPassword,
         motivoCambio,
         signInWithUsuario,
         signOut,

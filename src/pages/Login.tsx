@@ -4,13 +4,19 @@ import { ShieldCheck, UserCircle2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
-  const { session, signInWithUsuario, loading } = useAuth();
+  const { session, recuperandoPassword, signInWithUsuario, loading } = useAuth();
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  if (!loading && session) return <Navigate to="/inicio" replace />;
+  if (!loading && recuperandoPassword) {
+   return <Navigate to="/cambiar-password" replace />;
+  }
+
+  if (!loading && session) {
+   return <Navigate to="/inicio" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
