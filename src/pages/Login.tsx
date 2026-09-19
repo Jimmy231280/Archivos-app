@@ -4,7 +4,7 @@ import { ShieldCheck, UserCircle2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
-  const { session, recuperandoPassword, signInWithUsuario, loading } = useAuth();
+  const { session, recuperandoPassword, recuperarPassword, signInWithUsuario, loading } = useAuth();
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +71,20 @@ export default function Login() {
               className="w-full border border-[#D8DCE4] rounded px-3 py-2 text-sm mb-4"
               autoComplete="current-password"
             />
+            <div className="text-right mt-2">
+             <button
+               type="button"
+               onClick={() => {
+                const correo = window.prompt("Ingresa tu correo electrónico:");
+                if (correo) {
+                  recuperarPassword(correo);
+                }
+              }}
+              className="text-sm text-[#A30D0A] hover:underline"
+              >
+               ¿Olvidaste tu contraseña?
+              </button>
+             </div>
             {error && <p className="text-xs text-[#A30D0A] mb-3">{error}</p>}
             <button
               type="submit"

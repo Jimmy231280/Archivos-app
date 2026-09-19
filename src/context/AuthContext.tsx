@@ -12,6 +12,7 @@ interface AuthContextValue {
   recuperandoPassword: boolean;
   motivoCambio: "primer_ingreso" | "vencida" | null;
   signInWithUsuario: (usuario: string, password: string) => Promise<{ error: string | null }>;
+  recuperarPassword: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   marcarPasswordActualizada: () => Promise<void>;
@@ -72,6 +73,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: null };
   };
 
+    const recuperarPassword = async (email: string) => {
+    const redirectTo = `${window.location.origin}/cambiar-password`;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+
+    if (error) return { error: error.message };
+
+    return { error: null };
+  };
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
@@ -107,6 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         recuperandoPassword,
         motivoCambio,
         signInWithUsuario,
+        recuperarPassword,
         signOut,
         refreshProfile,
         marcarPasswordActualizada,
