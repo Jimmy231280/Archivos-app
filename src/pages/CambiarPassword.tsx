@@ -42,10 +42,12 @@ export default function CambiarPassword() {
             <Lock size={24} style={{ color: "#A30D0A" }} />
           </div>
           <h1 className="font-serif text-xl text-[#172033]">Actualiza tu contraseña</h1>
-          <p className="text-sm text-[#6B7386] mt-2 mb-6">
-            {motivoCambio === "vencida"
-              ? "Tu contraseña tiene más de 6 meses de antigüedad. Por política de seguridad de la UAI, debes renovarla antes de continuar."
-              : "Este es tu primer ingreso con la contraseña temporal (tu número de cédula). Por seguridad, crea una contraseña nueva antes de continuar."}
+          <p className="text-sm text-[#6786] mt-2 mb-6">
+            {recuperandoPassword
+             ? "Has solicitado recuperar el acceso a tu cuenta. Por seguridad, crea una nueva contraseña antes de continuar."
+             : motivoCambio === "vencida"
+             ? "Tu contraseña tiene más de 6 meses de antigüedad. Por seguridad, crea una contraseña nueva antes de continuar."
+             : "Este es tu primer ingreso con la contraseña temporal (tu número de cédula). Por seguridad, crea una contraseña nueva antes de continuar."}
           </p>
           <form onSubmit={handleSubmit} className="text-left space-y-3">
             <div>
