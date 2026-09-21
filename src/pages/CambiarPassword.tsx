@@ -10,6 +10,7 @@ export default function CambiarPassword() {
   const [p2, setP2] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [actualizado, setActualizado] = useState(false);
 
   if (!session) return <Navigate to="/login" replace />;
  
@@ -19,19 +20,30 @@ export default function CambiarPassword() {
   const valido = p1.length >= 6 && p1 === p2;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!valido) return;
-    setSubmitting(true);
-    setError(null);
-    const { error } = await supabase.auth.updateUser({ password: p1 });
-    if (error) {
-      setError("No se pudo actualizar la contraseña: " + error.message);
-      setSubmitting(false);
-      return;
-    }
-    await marcarPasswordActualizada();
+   e.preventDefault();
+   if (!valido) return;
+
+   setSubmitting(true);
+   setError(null);
+
+  const { error } = await supabase.auth.updateUser({
+    password: p1,
+  });
+
+  if (error) {
+    setError("No se pudo actualizar la contraseña: " + error.message);
     setSubmitting(false);
-  };
+    return;
+  }
+
+  await marcarPasswordActualizada();
+  setSubmitting(false);
+  setActualizado(true);
+
+  setTimeout(() => {
+    window.location.href = "/inicio";
+  }, 3000);
+};
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-white">
@@ -49,6 +61,17 @@ export default function CambiarPassword() {
              ? "Tu contraseña tiene más de 6 meses de antigüedad. Por seguridad, crea una contraseña nueva antes de continuar."
              : "Este es tu primer ingreso con la contraseña temporal (tu número de cédula). Por seguridad, crea una contraseña nueva antes de continuar."}
           </p>
+          {actualizado && (
+           <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-4 text-center">
+            <p className="text-base font-semibold text-green-700">
+              ✅ Contraseña actualizada correctamente.
+            </p>
+            <p className="mt-1 text-sm text-green-600">
+              Serás redirigido al inicio...
+            </p>
+           </div>
+         )}
+
           <form onSubmit={handleSubmit} className="text-left space-y-3">
             <div>
               <label className="block text-xs text-[#3A4256] mb-1">Nueva contraseña</label>
