@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Plus, Pencil, Trash2, KeyRound, X, CheckCircle2 } from "lucide-react";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
@@ -122,6 +122,8 @@ export default function Usuarios() {
 
 function UsuarioFormModal({ initial, onClose, onSaved }: { initial: Profile | null; onClose: () => void; onSaved: (msg: string) => void }) {
   const [nombres, setNombres] = useState(initial?.nombres || "");
+  const nombresRef = useRef<HTMLInputElement>(null);
+  const [mostrarErrorDuplicado, setMostrarErrorDuplicado] = useState(false);
   const [apellidos, setApellidos] = useState(initial?.apellidos || "");
   const [cedula, setCedula] = useState(initial?.cedula || "");
   const [telefono, setTelefono] = useState(initial?.phone || "");
@@ -154,10 +156,16 @@ function UsuarioFormModal({ initial, onClose, onSaved }: { initial: Profile | nu
     const password = passwordTemporal(cedula);
     const { data, error: signUpError } = await supabaseAdmin.auth.signUp({ email, password });
     if (signUpError || !data.user) {
-      setGuardando(false);
-      setError(signUpError?.message || "No se pudo crear el usuario.");
-      return;
-    }
+  setGuardando(false);
+
+  if (signUpError?.message?.toLowerCase().includes("already registered")) {
+    setMostrarErrorDuplicado(true);
+  } else {
+    setError(signUpError?.message || "No se pudo crear el usuario");
+  }
+
+  return;
+}
 
     // El trigger de la base de datos ya creó una fila en "profiles" con datos
     // mínimos. Ahora, con la sesión del ADMINISTRADOR (no la del usuario nuevo),
@@ -178,7 +186,7 @@ function UsuarioFormModal({ initial, onClose, onSaved }: { initial: Profile | nu
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E6EC]"><div className="font-serif text-lg text-[#172033]">{isEdit ? "Editar usuario" : "Crear usuario"}</div><button onClick={onClose} className="text-[#8D97AE]"><X size={18} /></button></div>
         <div className="px-5 py-4 space-y-3 text-sm max-h-[70vh] overflow-y-auto">
           <div className="grid grid-cols-2 gap-2">
-            <div><label className="block text-[#3A4256] mb-1">Nombres</label><input value={nombres} onChange={(e) => setNombres(e.target.value)} className="w-full border border-[#D8DCE4] rounded px-3 py-2" placeholder="Luis" /></div>
+            <div><label className="block text-[#3A4256] mb-1">Nombres</label><input ref={nombresRef} value={nombres} onChange={(e) => setNombres(e.target.value)} className="w-full border border-[#D8DCE4] rounded px-3 py-2" placeholder="Luis" /></div>
             <div><label className="block text-[#3A4256] mb-1">Apellidos</label><input value={apellidos} onChange={(e) => setApellidos(e.target.value)} className="w-full border border-[#D8DCE4] rounded px-3 py-2" placeholder="Fernández Rojas" /></div>
           </div>
           <div><label className="block text-[#3A4256] mb-1">Cédula de identidad</label><input value={cedula} onChange={(e) => setCedula(e.target.value.replace(/[^0-9A-Za-z]/g, ""))} disabled={isEdit} className="w-full border border-[#D8DCE4] rounded px-3 py-2 disabled:bg-[#F5F6F8]" placeholder="8523147" /></div>
@@ -202,6 +210,39 @@ function UsuarioFormModal({ initial, onClose, onSaved }: { initial: Profile | nu
           </button>
         </div>
       </div>
+      {mostrarErrorDuplicado && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
+    <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+      <div className="text-center">
+        <div className="mb-3 text-4xl">⚠️</div>
+
+        <h3 className="text-lg font-semibold text-[#172033]">
+          Usuario ya registrado
+        </h3>
+
+        <p className="mt-2 text-sm text-[#5B6472]">
+          El usuario ya existe. Verifica los datos ingresados.
+        </p>
+
+        <button
+          type="button"
+          onClick={() => {
+            setMostrarErrorDuplicado(false);
+            setError(null);
+
+            setTimeout(() => {
+              nombresRef.current?.focus();
+              nombresRef.current?.select();
+            }, 0);
+          }}
+          className="mt-5 rounded-md bg-[#1F4E8C] px-6 py-2 text-sm font-medium text-white hover:bg-[#173D70]"
+        >
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
