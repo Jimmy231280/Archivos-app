@@ -18,7 +18,7 @@ export function generarUsuario(nombres: string, apellidos: string): string {
 
 /** Supabase Auth necesita un correo. Se construye uno interno a partir del usuario. */
 export function usuarioAEmail(usuario: string): string {
-  return `${usuario}@uai.local`;
+  return `${usuario}@example.com`;
 }
 
 /** La contraseña temporal inicial es la cédula de identidad, tal como se definió. */
